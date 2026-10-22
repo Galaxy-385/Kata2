@@ -23,6 +23,8 @@ target/
 .settings
 .springBeans
 .sts4-cache
+.jar
+.class
 
 ### NetBeans ###
 /nbproject/private/
@@ -36,6 +38,6 @@ build/
 
 ### VS Code ###
 .vscode/
-
+*.xml
 ### Mac OS ###
 .DS_Store
