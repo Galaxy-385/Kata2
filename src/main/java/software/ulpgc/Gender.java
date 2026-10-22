@@ -8,6 +8,13 @@ public enum Gender {
         if (s == null || s.isBlank()) {
             throw new IllegalArgumentException("El género está vacío.");
         }
-        return Gender.valueOf(s.trim());
+
+        try {
+            return Gender.valueOf(s.trim());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "Género inválido: " + s
+            );
+        }
     }
 }
