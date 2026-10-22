@@ -1,129 +1,128 @@
-# Kata 2 — Entrada y salida en Java
+# Kata 2 — Input and Output in Java
 
-## Objetivo
+## Objective
 
-Practicar el uso de `InputStream` y `OutputStream` para leer datos tabulares, transformarlos en objetos y generar un resumen sin acoplar la lógica de procesamiento al origen de los datos ni al destino de salida.
+Practice using `InputStream` and `OutputStream` to read tabular data, transform it into objects, and generate a summary without coupling the processing logic to a specific input source or output destination.
 
-El programa lee un conjunto de empleados, obtiene su nombre y género, y calcula cuántos empleados hay de cada género.
+The program reads employee data, extracts each employee's name and gender, and counts the number of employees of each gender.
 
-## Requisitos
+## Requirements
 
-- Representar cada fila mediante una entidad de dominio.
-- Utilizar una interfaz de carga basada en `InputStream`.
-- Leer datos desde al menos dos orígenes diferentes.
-- Escribir los resultados mediante un `OutputStream`.
-- Permitir al menos dos destinos de salida.
-- Separar la lectura, la transformación, el cálculo del resumen y la escritura.
-- Mostrar mensajes comprensibles cuando se produzcan errores.
+- Represent each row as a domain entity.
+- Use a loading interface based on `InputStream`.
+- Read data from at least two different sources.
+- Write results through an `OutputStream`.
+- Support at least two output destinations.
+- Separate input, transformation, summary calculation, and output responsibilities.
+- Display understandable error messages when problems occur.
 
-## Tecnologías
+## Technologies
 
 - Java.
 - Maven.
-- JUnit 4 para pruebas automatizadas, si se utiliza la dependencia de pruebas.
-- JDK compatible con la versión configurada en `pom.xml`.
+- JUnit 4 for automated tests, if the test dependency is configured.
+- A JDK compatible with the version configured in `pom.xml`.
 
-## Estructura del proyecto
+## Project Structure
 
-Las clases principales se encuentran en `src/main/java/software/ulpgc/`.
+The main classes are located in `src/main/java/software/ulpgc/`.
 
-- `Main`: conecta los componentes y configura el origen y el destino.
-- `Employee`: representa un empleado mediante su nombre y género.
-- `Gender`: enumera los géneros admitidos y permite convertir texto en un valor del enum.
-- `EmployeeLoader`: interfaz para cargar empleados desde un `InputStream`.
-- `TsvEmployeeLoader`: lee el fichero TSV, omite la cabecera y transforma las filas en objetos `Employee`.
-- `EmployeeSource`: interfaz para abrir un origen de datos.
-- `FileEmployeeSource`: obtiene los datos desde un fichero local.
-- `UrlEmployeeSource`: obtiene los datos desde una URL.
-- `EmployeeSummaryWriter`: calcula el número de empleados de cada género y escribe el resultado en un `OutputStream`.
+- `Main`: connects the components and configures the input source and output destination.
+- `Employee`: represents an employee using their name and gender.
+- `Gender`: defines the supported genders and converts text into an enum value.
+- `EmployeeLoader`: interface for loading employees from an `InputStream`.
+- `TsvEmployeeLoader`: reads TSV data, skips the header, and transforms rows into `Employee` objects.
+- `EmployeeSource`: interface for opening an input source.
+- `FileEmployeeSource`: reads data from a local file.
+- `UrlEmployeeSource`: reads data from a URL.
+- `EmployeeSummaryWriter`: counts employees by gender and writes the summary to an `OutputStream`.
 
-## Compilación
+## Compilation
 
-Es necesario tener instalado un JDK compatible y Maven.
+A compatible JDK and Maven installation are required.
 
-Desde la raíz del proyecto, ejecutar:
+From the project root directory, run:
 
 ```bash
 mvn clean compile
 ```
 
-## Ejecución
+## Execution
 
-Para utilizar la URL predeterminada y mostrar el resultado por consola:
+To use the default URL and print the summary to the console:
 
 ```bash
 mvn exec:java -Dexec.mainClass="software.ulpgc.Main"
 ```
 
-Para indicar un fichero local y mostrar el resultado por consola:
+To read from a local file and print the summary to the console:
 
 ```bash
-mvn exec:java -Dexec.mainClass="software.ulpgc.Main" -Dexec.args="empleados.tsv"
+mvn exec:java -Dexec.mainClass="software.ulpgc.Main" -Dexec.args="employees.tsv"
 ```
 
-Para leer desde un fichero y guardar el resumen en otro fichero:
+To read from a local file and save the summary to another file:
 
 ```bash
-mvn exec:java -Dexec.mainClass="software.ulpgc.Main" -Dexec.args="empleados.tsv resumen.txt"
+mvn exec:java -Dexec.mainClass="software.ulpgc.Main" -Dexec.args="employees.tsv summary.txt"
 ```
 
-También se puede indicar una URL como primer argumento y un fichero de salida como segundo argumento.
+A URL can also be provided as the first argument, with an output filename as the second argument.
 
-El formato de entrada esperado es TSV, con columnas separadas por tabuladores. La primera fila contiene la cabecera. El programa utiliza la primera columna para el nombre y la sexta para el género.
+The expected input format is TSV, with columns separated by tab characters. The first row is treated as the header. The program reads the employee name from the first column and the gender from the sixth column.
 
-## Ejemplo de salida
+## Example Output
 
 ```text
 Male: 3
 Female: 2
 ```
 
-Los números dependen de los datos de entrada.
+The numbers depend on the input data.
 
-## Diseño y responsabilidades
+## Design and Responsibilities
 
-El programa separa la obtención de datos, su interpretación y la generación del resumen.
+The program separates data access, input interpretation, and summary generation.
 
-`FileEmployeeSource` y `UrlEmployeeSource` permiten cambiar el origen sin modificar el procesamiento de los empleados. `TsvEmployeeLoader` interpreta el formato de entrada y crea los objetos de dominio. `EmployeeSummaryWriter` recibe una colección de empleados y escribe el resumen en el flujo de salida recibido.
+`FileEmployeeSource` and `UrlEmployeeSource` allow the input source to be changed without modifying the employee-processing logic. `TsvEmployeeLoader` interprets the input format and creates domain objects. `EmployeeSummaryWriter` receives a collection of employees and writes the summary to the supplied output stream.
 
-El destino se puede cambiar entre la consola y un fichero sin modificar la lógica que calcula el resumen.
+The output destination can be changed between the console and a file without changing the summary calculation logic.
 
-## Verificación
+## Verification
 
-Se deben comprobar los siguientes casos:
+The following cases should be tested:
 
-- Lectura de un fichero TSV válido.
-- Lectura desde una URL.
-- Escritura del resumen por consola.
-- Escritura del resumen en un fichero.
-- Fichero de entrada inexistente.
-- URL inválida o inaccesible.
-- Fichero vacío.
-- Fila mal formada o con género inválido.
-- Resultado consistente al cambiar el orden de las filas.
-- Mismo resumen para los mismos datos, independientemente del origen.
+- Reading a valid TSV file.
+- Reading data from a URL.
+- Writing the summary to the console.
+- Writing the summary to a file.
+- Handling a missing input file.
+- Handling an invalid or inaccessible URL.
+- Handling an empty file.
+- Handling malformed rows or invalid gender values.
+- Verifying that changing row order does not change the summary.
+- Verifying that the same data produces the same summary regardless of the input source.
 
-Los resultados de las pruebas deben documentarse una vez ejecutadas.
+Document the actual results after running the tests.
 
-## Repeticiones de la kata
+## Kata Repetitions
 
-La kata debe repetirse al menos tres veces con un alcance equivalente.
+The kata must be repeated at least three times with an equivalent scope.
 
-- **Repetición 1:** [describir la primera implementación].
-- **Repetición 2:** [describir los cambios realizados en la segunda implementación].
-- **Repetición 3:** [describir los cambios realizados en la tercera implementación].
+- **Iteration 1:** [Describe the first implementation.]
+- **Iteration 2:** [Describe the changes made in the second implementation.]
+- **Iteration 3:** [Describe the changes made in the third implementation.]
 
-Los commits del repositorio deben permitir identificar las diferentes repeticiones.
+The repository commits should make the different iterations identifiable.
 
-## Vídeo explicativo
+## Explanatory Video
 
-**Enlace al vídeo:** [añadir aquí el enlace].
+**Video link:** [Add the video link here.]
 
-Duración máxima: 7 minutos.
+Maximum duration: 7 minutes.
 
-El vídeo debe explicar el uso de `InputStream` y `OutputStream`, la transformación de filas en objetos, la lectura desde diferentes orígenes, el cambio de destino de salida, el tratamiento de errores y cómo ampliar el programa con nuevos adaptadores.
+The video should explain the use of `InputStream` and `OutputStream`, the transformation of rows into objects, reading from different sources, changing the output destination, error handling, and how to extend the program with new adapters.
 
-## Repositorio
+## Repository
 
-Repositorio público: https://github.com/Galaxy-385/Kata2
-
+Public repository: https://github.com/Galaxy-385/Kata2
