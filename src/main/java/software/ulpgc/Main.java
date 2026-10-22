@@ -1,44 +1,52 @@
 
 package software.ulpgc;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
-import java.util.List;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        URL url = new URL("https://raw.githubusercontent.com/sachin365123/CSV-files-for-Data-Science-and-Machine-Learning/refs/heads/main/Employee%20Dataset%20-%20TSV.txt");
 
-        try (InputStream input = url.openStream();
-             Reader reader = new InputStreamReader(input)) {
-            List<Employee> employees = loadEmployeesFrom(reader);
+    private static final String URL_DATA =
+            "https://raw.githubusercontent.com/sachin365123/CSV-files-for-Data-Science-and-Machine-Learning/refs/heads/main/Employee%20Dataset%20-%20TSV.txt";
 
-            for (Employee employee : employees) {
-                System.out.println(employee);
+    public static void main(String[] args) {
+        String source = args.length > 0 ? args[0] : URL_DATA;
+        String destination = args.length > 1 ? args[1] : "-";
+
+        try {
+            EmployeeLoader loader = new EmployeeLoader();
+            EmployeeSummaryWriter writer = new EmployeeSummaryWriter();
+
+            try (InputStream input = openInput(source)) {
+                var employees = loader.load(input);
+
+                if (destination.equals("-")) {
+                    writer.write(employees, System.out);
+                } else {
+                    try (OutputStream output =
+                                 new FileOutputStream(destination)) {
+                        writer.write(employees, output);
+                    }
+                }
             }
+
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Error: " + e.getMessage());
         }
     }
 
-    private static List<Employee> loadEmployeesFrom(Reader reader) throws IOException {
-        return loadEmployeesFrom(new BufferedReader(reader).lines().toList());
-    }
+    private static InputStream openInput(String source)
+            throws IOException {
 
-    private static List<Employee> loadEmployeesFrom(List<String> strings) {
-        return strings.stream()
-                .skip(1)
-                .map(Main::loadEmployeeFrom)
-                .toList();
-    }
-
-    private static Employee loadEmployeeFrom(String s) {
-        return loadEmployeeFrom(s.split("\t", -1));
-    }
-
-    private static Employee loadEmployeeFrom(String[] split) {
-        if (split.length < 6 || split[0].isBlank() || split[5].isBlank()) {
-            throw new IllegalArgumentException("Fila inválida: faltan datos.");
+        if (source.startsWith("http://")
+                || source.startsWith("https://")) {
+            return new URL(source).openStream();
         }
 
-        return new Employee(split[0], Gender.from(split[5]));
+        return new FileInputStream(source);
     }
 }
